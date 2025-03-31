@@ -128,38 +128,32 @@ export async function addItemToCart(data: CartItem) {
   }
 }
 
-export async function getMyCart() {
-  try {
-    // check for cart cookie
-    const sessionCartId = (await cookies()).get('sessionCartId')?.value;
+export async function getMyCart() { 
+  // check for cart cookie
+  const sessionCartId = (await cookies()).get('sessionCartId')?.value;
 
-    if (!sessionCartId) throw new Error('Cart session not found');
+  if (!sessionCartId) throw new Error('Cart session not found');
 
-    const session = await auth();
-    const userId = session?.user?.id ?? undefined;
+  const session = await auth();
+  const userId = session?.user?.id ?? undefined;
 
-    // Get user cart from database
-    const cart = await prisma.cart.findFirst({
-      where: userId ? { userId } : { sessionCartId },
-    });
+  // Get user cart from database
+  const cart = await prisma.cart.findFirst({
+    where: userId ? { userId } : { sessionCartId },
+  });
 
-    if (!cart) return undefined;
+  if (!cart) return undefined;
 
 
-    return convertToPlainObject({
-      ...cart,
-      items: cart.items as CartItem[],
-      itemsPrice: cart.itemsPrice.toString(),
-      totalPrice: cart.totalPrice.toString(),
-      shippingPrice: cart.shippingPrice.toString(),
-      taxPrice: cart.taxPrice.toString(),
-    });
-  } catch (error) {
-    return {
-      success: false,
-      message: formatError(error),
-    }
-  }
+  return convertToPlainObject({
+    ...cart,
+    items: cart.items as CartItem[],
+    itemsPrice: cart.itemsPrice.toString(),
+    totalPrice: cart.totalPrice.toString(),
+    shippingPrice: cart.shippingPrice.toString(),
+    taxPrice: cart.taxPrice.toString(),
+  });
+
 }
 
 export async function removeItemFromCart(productId: string) {
@@ -196,7 +190,7 @@ export async function removeItemFromCart(productId: string) {
         (x) => x.productId === exist.productId
       )!.qty = exist.qty - 1;
     }
-    
+
     //update cart in database
     await prisma.cart.update({
       where: { id: cart.id },

@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getMyCart } from "@/lib/actions/cart.actions";
 import { getProductBySlug } from "@/lib/actions/product.actions";
-import { Cart } from "@/types";
 import { notFound } from "next/navigation";
 
 
@@ -67,7 +66,7 @@ async function ProductDetailsPage(props: {
                 {product.stock > 0 && (
                   <div className="flex-center">
                     <AddToCart 
-                    cart={cart as Cart}
+                    cart={cart}
                     item={{
                       productId: product.id,
                       name: product.name,
