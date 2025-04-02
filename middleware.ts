@@ -21,7 +21,13 @@ export function middleware(request: NextRequest) {
     const sessionCartId = crypto.randomUUID();
     response.cookies.set("sessionCartId", sessionCartId);
     console.log("Criando um novo carrinho de compras", sessionCartId);
-    return response;
+  }
+
+  if (!request.cookies.has('authjs.session-token') && PROTECTED_ROUTES.some((route) => route.test(request.nextUrl.pathname))) {
+    // Se não houver um token de sessão e a rota for protegida, redireciona para a página de login
+    const loginUrl = new URL("/sign-in", request.url);
+    loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   return response;
