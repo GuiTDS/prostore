@@ -52,9 +52,9 @@ function OrderDetailsTable({ order, paypalClientId }: { order: Order, paypalClie
         return res.data;
     }
 
-    const handleApprovePayPalOrder = async (data: { orderId: string }) => {
-        const res = await approvePayPalOrder(order.id, data);
-
+    const handleApprovePayPalOrder = async (orderId: string) => {
+        const res = await approvePayPalOrder(order.id, { orderId });
+    
         toast({
             variant: res.success ? 'default' : 'destructive',
             description: res.message,
@@ -173,7 +173,7 @@ function OrderDetailsTable({ order, paypalClientId }: { order: Order, paypalClie
                                     <PrintLoadingState />
                                     <PayPalButtons
                                         createOrder={handleCreatePayPalOrder}
-                                        onApprove={handleApprovePayPalOrder}
+                                        onApprove={(data) => handleApprovePayPalOrder(data.orderID!)}
                                     />
                                 </PayPalScriptProvider>
                             )}
