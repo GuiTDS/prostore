@@ -10,6 +10,7 @@ import { prisma } from "@/db/prisma";
 import { CartItem, PaymentResult } from "@/types";
 import { paypal } from "../paypal";
 import { revalidatePath } from "next/cache";
+import { PAGE_SIZE } from "../constants";
 
 export async function createOrder() {
     try {
@@ -208,7 +209,7 @@ async function updateOrderToPaid({
     // Transaction to update order and account for product stock
     await prisma.$transaction(async (tx) => {
         // Iterate over products and update the stock
-        for(const item of order.orderitems) {
+        for (const item of order.orderitems) {
             await tx.product.update({
                 where: {
                     id: item.productId,
@@ -227,11 +228,11 @@ async function updateOrderToPaid({
             data: {
                 isPaid: true,
                 paidAt: new Date(),
-                paymentResult, 
+                paymentResult,
             }
         });
     });
-    
+
     // Get updated order after the transaction
     const updatedOrder = await prisma.order.findFirst({
         where: {
@@ -249,4 +250,32 @@ async function updateOrderToPaid({
     });
 
     if (!updatedOrder) throw new Error("Order not found");
+}
+
+// Get users orders
+export async function getMyOrders({ limit = PAGE_SIZE, page }: { limit?: number, page: number }) {
+    const session = await auth();
+    if (!session) throw new Error("User is not authorized");
+
+    const data = await prisma.order.findMany({
+        where: {
+            userId: session.user?.id
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+        take: limit,
+        skip: (page - 1) * limit,
+    });
+
+    const dataCount = await prisma.order.count({
+        where: {
+            userId: session.user?.id,
+        }
+    });
+
+    return {
+        data,
+        totalPages: Math.ceil(dataCount / limit)
+    }
 }
