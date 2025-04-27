@@ -2,7 +2,7 @@
 
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 
-function Charts({ data: { salesData } }: { data: { salesData: { month: string; totalSales: Number; }[] }; }) {
+function Charts({ data: { salesData } }: { data: { salesData: { month: string; totalSales: number; }[] }; }) {
     return (
         <ResponsiveContainer width='100%' height={350}>
             <BarChart data={salesData}>
